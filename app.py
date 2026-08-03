@@ -1,8 +1,12 @@
 import os
 from flask import Flask, render_template
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__, template_folder = 'templates', static_folder='static', static_url_path='/static')
 app.secret_key = os.getenv('Flask_Secret_Key')
+DATABASE_URL = os.getenv('DATABASE_URL')
 
 @app.route('/')
 def landing():
