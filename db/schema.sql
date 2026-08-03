@@ -23,3 +23,5 @@ CREATE TABLE tags(
     tag TEXT,
     timestamp BIGINT
 );
+
+SELECT * from tags;

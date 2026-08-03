@@ -13,3 +13,7 @@ venv/
 
 #Flask instance/config leftovers
 instance/
+
+#data file because the csv file is huge
+data/
+!data/.gitkeep
