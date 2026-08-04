@@ -35,7 +35,7 @@
 
 <!--Cards-->
 <h5 class="text-center fw-bold">Why Choose Us?</h5>
-<div class="cards d-flex align-items-center justify-content-center py-2">
+<div class="cards d-flex align-items-center justify-content-center pb-5">
     <div class="d-flex justify-content-around gap-5">
         <div class="card1 d-flex justify-content-between gap-2">
             <i class="bi bi-info-circle "></i>
@@ -59,5 +59,91 @@
             </div>
         </div>
     </div>
+</div>
+
+<!--FAQs-->
+<h5 class="text-center fw-bold mb-4">Frequently Asked Questions</h5>
+<div class="d-flex justify-content-center px-3 pb-5">
+  <div class="accordion w-100" id="accordionExample" style="max-width: 800px;">
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Is Not Movies Free to Use?
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>Yes, creating an account and tracking movies is completely free.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Do I need to create an account to browse movies?
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>You can browse the movie catalog without an account, but you'll need to sign up to track watched movies, or get personalized recommendation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          How do you generate recommendations?
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>We look at the movie you've watched to suggest similar titles you're likely to enjoy, the more you rate, the better the suggestion gets.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          What is the "Feeling Lucky" feature?
+        </button>
+      </h2>
+      <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>It picks a random movie from our catalog for you - great when you can't decide what to watch.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+          Can I edit or delete a movie from my watch history?
+        </button>
+      </h2>
+      <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>Yes, you can edit or delete your watch history at any time from your profile.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+          I found a bug or incorrect movie info - how do I report it?
+        </button>
+      </h2>
+      <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>You can contact me through the contact form.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

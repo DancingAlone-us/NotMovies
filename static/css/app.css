@@ -73,3 +73,12 @@
         max-width: 90%;
     }
 }
+.accordion-button:not(.collapsed) {
+    background-color: black;  
+    color: white;                 
+    box-shadow: none;            
+}
+
+.accordion-button:not(.collapsed)::after {
+    filter: brightness(0) invert(1); /* makes default dark arrow white */
+}
