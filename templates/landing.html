@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block head %}
-<title>Not Movies - Watch trailers for free.</title>
-<meta name="keywords" content="movies, trailer, synopsis">
-<meta name="description" content="My movie website helps users find the movie they want to watch and provides information about that movie">
+<title>Not Movies - Track Movies You've Watched.</title>
+<meta name="keywords" content="movies, trailer, synopsis, track">
+<meta name="description" content="My movie website helps users track the movies they've watched">
 {% endblock %}
 
 {% block main %}
@@ -10,7 +10,7 @@
 <!--Search-->
 <div class="search d-flex justify-content-center align-items-center">
     <div class="banner col-11 col-md-8 col-lg-6 mx-auto text-center">
-        <h1 class="text-dark fw-bold banner-title">Not Movies - Watch Movie Trailers Online.</h1>
+        <h1 class="text-dark fw-bold banner-title">Not Movies - Track Movies You've Watched.</h1>
         <p class="text-secondary text-center fw-bold">Some of The Most Popular Movies, Just Search & Play</p>
 
         <form method="get" action="{{ url_for('browse') }}" class="d-flex justify-content-center align-items-center py-2">
@@ -29,6 +29,34 @@
         <div class="buttons d-flex flex-column flex-sm-row justify-content-center gap-2">
             <a href="{{ url_for('index') }}" class="btn bg-dark text-white px-3 py-2">Home</a>
             <a href="{{ url_for('browse') }}" class="btn bg-dark text-white px-3 py-2">Browse</a>
+        </div>
+    </div>
+</div>
+
+<!--Cards-->
+<h5 class="text-center fw-bold">Why Choose Us?</h5>
+<div class="cards d-flex align-items-center justify-content-center py-2">
+    <div class="d-flex justify-content-around gap-5">
+        <div class="card1 d-flex justify-content-between gap-2">
+            <i class="bi bi-info-circle "></i>
+            <div class="text">
+                <p class="fw-bold text-dark">AI Powered Recommendations</p>
+                <p class="text-secondary">Not just filters - tell our assistant what mood you're in, and it finds movies that actually match.</p>
+            </div>
+        </div>
+                <div class="card1 d-flex justify-content-between gap-2">
+            <i class="bi bi-info-circle "></i>
+            <div class="text">
+                <p class="fw-bold text-dark">Track Your Watch History</p>
+                <p class="text-secondary">Never forget what you've seen, a simple log/diary of watched movie, and rating.</p>
+            </div>
+        </div>
+                <div class="card1 d-flex justify-content-between gap-2">
+            <i class="bi bi-info-circle "></i>
+            <div class="text">
+                <p class="fw-bold text-dark">Curated, Not Overwhelming</p>
+                <p class="text-secondary">A focused catalog of great movies, no endless scrolling through thousands of forgotten titles.</p>
+            </div>
         </div>
     </div>
 </div>

@@ -3,19 +3,19 @@
 }
 
 .banner-title {
-    font-size: clamp(1.4rem, 4vw, 2.5rem); /* scales smoothly instead of one fixed size */
+    font-size: clamp(1.4rem, 4vw, 2.5rem); 
     line-height: 1.2;
 }
 
 .search-wrapper {
     position: relative;
-    max-width: 500px; /* caps width on large screens */
+    max-width: 500px;
     margin: 0 auto;
 }
 
 .search-input {
     width: 100%;
-    padding-right: 45px; /* room for the icon so text doesn't run under it */
+    padding-right: 45px;
     border-radius: 999px;
 }
 
@@ -37,5 +37,39 @@
     }
     .buttons .btn {
         width: 100%;
+    }
+}
+
+.cards {
+    padding: 20px 0;
+}
+
+.cards .d-flex.justify-content-around {
+    flex-wrap: wrap;     
+    row-gap: 24px;
+}
+
+.card1 {
+    padding: 20px;
+    border: 2px solid grey;
+    max-width: 250px;
+    width: 100%;           
+    flex: 1 1 250px;       
+}
+
+.bi-info-circle {
+    font-size: 20px;
+}
+
+
+@media (max-width: 768px) {
+    .cards .d-flex.justify-content-around {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px !important;
+    }
+
+    .card1 {
+        max-width: 90%;
     }
 }
