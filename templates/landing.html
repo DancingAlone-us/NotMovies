@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block head %}
+<title>Not Movies - Watch trailers for free.</title>
+<meta name="keywords" content="movies, trailer, synopsis">
+<meta name="description" content="My movie website helps users find the movie they want to watch and provides information about that movie">
+{% endblock %}
+
+{% block main %}
+
+<!--Search-->
+<div class="search d-flex justify-content-center align-items-center">
+    <div class="banner col-11 col-md-8 col-lg-6 mx-auto text-center">
+        <h1 class="text-dark fw-bold banner-title">Not Movies - Watch Movie Trailers Online.</h1>
+        <p class="text-secondary text-center fw-bold">Some of The Most Popular Movies, Just Search & Play</p>
+
+        <form method="get" action="{{ url_for('browse') }}" class="d-flex justify-content-center align-items-center py-2">
+            <div class="search-wrapper w-100">
+                <input type="text" name="q" value="{{ query or '' }}"
+                       class="search-input form-control"
+                       placeholder="Search For Movies....">
+                <button class="search-icon-btn" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+
+        <p class="text-secondary text-center fw-bold">Don't Know What To Watch?</p>
+
+        <div class="buttons d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a href="{{ url_for('index') }}" class="btn bg-dark text-white px-3 py-2">Home</a>
+            <a href="{{ url_for('browse') }}" class="btn bg-dark text-white px-3 py-2">Browse</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

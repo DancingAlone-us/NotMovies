@@ -1,0 +1,41 @@
+.banner{
+    padding: 2.5rem;
+}
+
+.banner-title {
+    font-size: clamp(1.4rem, 4vw, 2.5rem); /* scales smoothly instead of one fixed size */
+    line-height: 1.2;
+}
+
+.search-wrapper {
+    position: relative;
+    max-width: 500px; /* caps width on large screens */
+    margin: 0 auto;
+}
+
+.search-input {
+    width: 100%;
+    padding-right: 45px; /* room for the icon so text doesn't run under it */
+    border-radius: 999px;
+}
+
+.search-icon-btn {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+}
+
+/* small-screen tweaks */
+@media (max-width: 576px) {
+    .search-icon-btn {
+        right: 10px;
+    }
+    .buttons .btn {
+        width: 100%;
+    }
+}
