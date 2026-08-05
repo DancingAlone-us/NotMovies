@@ -1,10 +1,90 @@
 {% extends "base.html" %}
+
 {% block head %}
-<title>Not Movies - Track Movies You've Watched.</title>
-<meta name="keywords" content="movies, trailer, synopsis, track">
-<meta name="description" content="My movie website helps users track the movies they've watched">
+  <title>Not Movies — Home</title>
 {% endblock %}
 
 {% block main %}
-<h1>HI</h1>
+<div class="container py-4">
+
+  <!-- Hero carousel -->
+  <div id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for movie in featured_movies %}
+      <div class="carousel-item {% if loop.first %}active{% endif %}">
+        <div class="rounded-4 p-5 position-relative text-white d-flex align-items-end"
+             style="background-image: url('{{ movie.backdrop_url }}'); background-size: cover; background-position: center; min-height: 400px;">
+          <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4"
+               style="background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15));"></div>
+          <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="position-relative text-white text-decoration-none">
+            <h2 class="fw-bold">{{ movie.title }}</h2>
+            <p class="w-75">{{ movie.synopsis }}</p>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+
+  <!-- New Movies -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">New Movies</h4>
+    <a href="{{ url_for('browse') }}" class="btn btn-sm btn-dark">View All</a>
+  </div>
+  <div class="row mb-5">
+    {% for movie in new_movies %}
+    <div class="col-6 col-md-3 mb-3">
+      <a href="{{ url_for('movie_detail_tmdb', tmdb_id=movie.tmdb_id) }}" class="text-decoration-none text-dark">
+        <div class="card border-0">
+          {% if movie.poster_url %}
+            <img src="{{ movie.poster_url }}" class="card-img-top rounded-3" alt="{{ movie.title }}">
+          {% else %}
+            <div class="bg-secondary-subtle rounded-3" style="aspect-ratio: 2/3;"></div>
+          {% endif %}
+          <div class="card-body px-0 pb-0">
+            <p class="mb-1 fw-semibold small">{{ movie.title }}</p>
+            <small class="text-muted">Rating: {{ movie.rating }}</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% else %}
+    <p class="text-muted">No new movies available right now.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Top 10 -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">Top 10 Movies Of All Time</h4>
+    <a href="{{ url_for('browse') }}" class="btn btn-sm btn-dark">View All</a>
+  </div>
+  <div class="row mb-5">
+    {% for movie in top_movies %}
+    <div class="col-6 col-md-3 mb-3">
+      <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="text-decoration-none text-dark">
+        <div class="card border-0">
+          {% if movie.poster_url %}
+            <img src="{{ movie.poster_url }}" class="card-img-top rounded-3" alt="{{ movie.title }}">
+          {% else %}
+            <div class="bg-secondary-subtle rounded-3" style="aspect-ratio: 2/3;"></div>
+          {% endif %}
+          <div class="card-body px-0 pb-0">
+            <p class="mb-1 fw-semibold small">{{ movie.title }}</p>
+            <small class="text-muted">Rating: {{ movie.rating }}</small>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% else %}
+    <p class="text-muted">No top-rated movies available right now.</p>
+    {% endfor %}
+  </div>
+
+</div>
 {% endblock %}

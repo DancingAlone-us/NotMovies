@@ -20,10 +20,24 @@ def get_movie_detail(tmdb_id):
     )
 
     return {
+        'tmdb_id' : tmdb_id,
         "title": data.get("title"),
         "synopsis": data.get("overview"),
         "poster_url": f"{IMG_BASE}{data['poster_path']}" if data.get("poster_path") else None,
         "backdrop_url": f"{IMG_BASE}{data['backdrop_path']}" if data.get("backdrop_path") else None,
         "cast": data.get("credits", {}).get("cast", [])[:10],
-        "trailer_key": trailer["key"] if trailer else None
+        "trailer_key": trailer["key"] if trailer else None,
+        'rating' : data.get('vote_average')
     }
+
+def get_now_playing(limit = 8):
+    resp = requests.get(f"{BASE_URL}/movie/now_playing", params={"api_key": TMDB_API_KEY, 'region': "US"})
+    resp.raise_for_status()
+    results = resp.json().get('results', [])[:limit]
+    return [{
+        "tmdb_id": m["id"],
+        "title": m["title"],
+        "poster_url": f"{IMG_BASE}{m['poster_path']}" if m.get("poster_path") else None,
+        "rating": m.get("vote_average"),
+        "movie_id": None
+    } for m in results]

@@ -1,5 +1,8 @@
 
-
+body{
+    background-color: #F2F0EF;
+    color: #1E222A;
+}
 
 .banner{
     padding: 2.5rem;
@@ -78,10 +81,18 @@
 }
 .accordion-button:not(.collapsed) {
     background-color: black;  
-    color: white;                 
+    color: #F2F0EF;                 
     box-shadow: none;            
 }
 
 .accordion-button:not(.collapsed)::after {
     filter: brightness(0) invert(1); /* makes default dark arrow white */
+}
+
+.accordion-body{
+    background-color: #F2F0EF;
+}
+
+.accordion-header{
+    background-color:#F2F0EF ;
 }
