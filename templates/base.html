@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script>
+      (function() {
+        const stored = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme:dark)');
+        const theme = stored || (systemPrefersDark ? 'dark' :'light');
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      })();
+    </script>
     {% block head %} {% endblock %}
     <link
       rel="stylesheet"
@@ -59,6 +68,12 @@
                 href="{{ url_for('signup') }}"
                 >Sign Up</a
               >
+            </li>
+
+            <li class="nav-item">
+              <button id = 'themeToggle' class="btn btn-sm btn-outline-secondary mt-1" type="button" aria-label="Toggle dark Mode">
+                <i class="bi bi-moon" id="themeIcon"></i>
+              </button>
             </li>
           </ul>
         </div>

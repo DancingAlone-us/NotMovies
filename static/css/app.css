@@ -1,8 +1,8 @@
-
+/* 
 body{
     background-color: #F2F0EF;
     color: #1E222A;
-}
+} */
 
 .banner{
     padding: 2.5rem;
@@ -86,16 +86,16 @@ body{
 }
 
 .accordion-button:not(.collapsed)::after {
-    filter: brightness(0) invert(1); /* makes default dark arrow white */
+    filter: brightness(0) invert(1); 
 }
 
-.accordion-body{
+/* .accordion-body{
     background-color: #F2F0EF;
 }
 
 .accordion-header{
     background-color:#F2F0EF ;
-}
+} */
 
 .hero-carousel {
   margin-left: calc(-50vw + 50%);
@@ -104,25 +104,26 @@ body{
 }
 
 .hero-slide {
-  min-height: 550px;
+  min-height: 600px;
   background-size: cover;
-  background-position: center;
+  background-position: center 30%;
   position: relative;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85) 10%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%);
+  background:
+    linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.15) 75%),
+    linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.35) 100%);
 }
-
 .hero-content {
   z-index: 2;
 }
 
 .hero-meta span {
   font-size: 0.95rem;
-  color: #ddd;
+  color: #ccc;
 }
 
 .hero-synopsis {
@@ -150,4 +151,23 @@ body{
   .hero-synopsis, .hero-content .w-50 {
     width: 90% !important;
   }
+}
+
+
+[data-bs-theme="dark"] .cta {
+  background-color: #1a1a1a !important;
+}
+
+[data-bs-theme="dark"] .footer {
+  background-color: #121212;
+  color: #eee;
+}
+
+[data-bs-theme="dark"] .card {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #999 !important;
 }

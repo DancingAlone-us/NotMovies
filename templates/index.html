@@ -34,10 +34,10 @@
           <p class="hero-synopsis w-50">{{ movie.synopsis }}</p>
           <div class="d-flex gap-2 mt-3">
             <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="btn btn-light fw-semibold px-4">
-              ▶ Play
+              <i class="bi bi-play-fill"></i> Play
             </a>
             <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="btn btn-dark fw-semibold px-4">
-              ⓘ See More
+              <i class="bi bi-info-circle-fill"></i> See More
             </a>
           </div>
         </div>
