@@ -7,30 +7,45 @@
 {% block main %}
 <div class="container py-4">
 
-  <!-- Hero carousel -->
-  <div id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      {% for movie in featured_movies %}
-      <div class="carousel-item {% if loop.first %}active{% endif %}">
-        <div class="rounded-4 p-5 position-relative text-white d-flex align-items-end"
-             style="background-image: url('{{ movie.backdrop_url }}'); background-size: cover; background-position: center; min-height: 400px;">
-          <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4"
-               style="background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15));"></div>
-          <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="position-relative text-white text-decoration-none">
-            <h2 class="fw-bold">{{ movie.title }}</h2>
-            <p class="w-75">{{ movie.synopsis }}</p>
-          </a>
+<!-- Hero carousel -->
+<div id="heroCarousel" class="carousel slide hero-carousel mb-5" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    {% for movie in featured_movies %}
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ loop.index0 }}"
+            class="{% if loop.first %}active{% endif %}" aria-current="{% if loop.first %}true{% endif %}"></button>
+    {% endfor %}
+  </div>
+
+  <div class="carousel-inner">
+    {% for movie in featured_movies %}
+    <div class="carousel-item {% if loop.first %}active{% endif %}">
+      <div class="hero-slide d-flex align-items-end"
+           style="background-image: url('{{ movie.backdrop_url }}');">
+        <div class="hero-overlay"></div>
+        <div class="hero-content position-relative text-white px-5 pb-5">
+          <h1 class="fw-bold display-5">{{ movie.title }}</h1>
+          <div class="d-flex align-items-center gap-2 mb-3 hero-meta">
+            <span class="text-warning">★ {{ "%.1f"|format(movie.rating) if movie.rating else "N/A" }}</span>
+            {% if movie.get(release_year) %}<span>|</span><span>{{ movie.release_year }}</span>{% endif %}
+            {% for genre in (movie.genres or []) %}
+              <span>|</span><span>{{ genre }}</span>
+            {% endfor %}
+          </div>
+          <p class="hero-synopsis w-50">{{ movie.synopsis }}</p>
+          <div class="d-flex gap-2 mt-3">
+            <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="btn btn-light fw-semibold px-4">
+              ▶ Play
+            </a>
+            <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="btn btn-dark fw-semibold px-4">
+              ⓘ See More
+            </a>
+          </div>
         </div>
       </div>
-      {% endfor %}
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </button>
+    {% endfor %}
   </div>
+</div>
 
   <!-- New Movies -->
   <div class="d-flex justify-content-between align-items-center mb-3">

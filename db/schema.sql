@@ -23,3 +23,9 @@ CREATE TABLE tags(
     tag TEXT,
     timestamp BIGINT
 );
+
+CREATE TABLE tmdb_cache(
+    tmdb_id INTEGER PRIMARY KEY,
+    data JSONB NOT NULL,
+    fetched_at TIMESTAMP DEFAULT NOW()
+);

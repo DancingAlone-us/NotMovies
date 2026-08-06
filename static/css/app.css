@@ -96,3 +96,58 @@ body{
 .accordion-header{
     background-color:#F2F0EF ;
 }
+
+.hero-carousel {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: 100vw;
+}
+
+.hero-slide {
+  min-height: 550px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 10%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%);
+}
+
+.hero-content {
+  z-index: 2;
+}
+
+.hero-meta span {
+  font-size: 0.95rem;
+  color: #ddd;
+}
+
+.hero-synopsis {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #ccc;
+}
+
+.carousel-indicators [data-bs-target] {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.5);
+}
+
+.carousel-indicators .active {
+  background-color: #dc3545;
+  width: 20px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .hero-synopsis, .hero-content .w-50 {
+    width: 90% !important;
+  }
+}

@@ -9,7 +9,7 @@ BASE_URL = "https://api.themoviedb.org/3"
 IMG_BASE = "https://image.tmdb.org/t/p/w500"
 
 def get_movie_detail(tmdb_id):
-    resp = requests.get(f"{BASE_URL}/movie/{tmdb_id}", params={"api_key":TMDB_API_KEY, "append_to_response": "credits,videos"})
+    resp = requests.get(f"{BASE_URL}/movie/{tmdb_id}", params={"api_key": TMDB_API_KEY, "append_to_response": "credits,videos"})
     resp.raise_for_status()
     data = resp.json()
 
@@ -19,15 +19,19 @@ def get_movie_detail(tmdb_id):
         None
     )
 
+    release_date = data.get("release_date", "")
+
     return {
-        'tmdb_id' : tmdb_id,
+        "tmdb_id": tmdb_id,
         "title": data.get("title"),
         "synopsis": data.get("overview"),
         "poster_url": f"{IMG_BASE}{data['poster_path']}" if data.get("poster_path") else None,
         "backdrop_url": f"{IMG_BASE}{data['backdrop_path']}" if data.get("backdrop_path") else None,
         "cast": data.get("credits", {}).get("cast", [])[:10],
         "trailer_key": trailer["key"] if trailer else None,
-        'rating' : data.get('vote_average')
+        "rating": data.get("vote_average"),
+        "release_year": release_date[:4] if release_date else None,
+        "genres": [g["name"] for g in data.get("genres", [])]
     }
 
 def get_now_playing(limit = 8):
