@@ -64,3 +64,18 @@ def get_random_tmdb_movie():
     if not results:
         return None
     return random.choice(results)["id"]
+
+def search_tmdb(query, page=1):
+    resp = requests.get(
+        f"{BASE_URL}/search/movie",
+        params={"api_key": TMDB_API_KEY, "query": query, "page": page}
+    )
+    resp.raise_for_status()
+    results = resp.json().get("results", [])
+    return [{
+        "tmdb_id": m["id"],
+        "title": m["title"],
+        "poster_url": f"{IMG_BASE}{m['poster_path']}" if m.get("poster_path") else None,
+        "rating": m.get("vote_average"),
+        "movie_id": None
+    } for m in results]

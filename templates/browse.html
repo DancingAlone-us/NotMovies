@@ -9,8 +9,8 @@
 
   <!-- Filter bar -->
   <div class="d-flex flex-wrap gap-3 mb-4 filter-bar">
-    <a href="{{ url_for('browse', sort='recent', genre=current_genre) }}"
-       class="filter-pill {% if current_sort == 'recent' %}active{% endif %}">Most Recent</a>
+<a href="{{ url_for('browse', sort='recent', genre=current_genre, q=current_query) }}"
+   class="filter-pill {% if current_sort == 'recent' %}active{% endif %}">Most Recent</a>
     <a href="{{ url_for('browse', sort='watched', genre=current_genre) }}"
        class="filter-pill {% if current_sort == 'watched' %}active{% endif %}">Most Watched</a>
     <a href="{{ url_for('browse', sort='top_rated', genre=current_genre) }}"

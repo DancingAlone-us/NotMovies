@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from dotenv import load_dotenv
-from services.tmdb import get_movie_detail, get_now_playing, get_random_tmdb_movie
+from services.tmdb import get_movie_detail, get_now_playing, get_random_tmdb_movie, search_tmdb
 import psycopg2
 import requests
 import json
@@ -41,15 +41,24 @@ def index():
 def browse():
     sort = request.args.get('sort', 'recent')
     genre = request.args.get('genre', 'all')
+    query = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
     per_page = 20
 
-    # over-fetch to compensate for movies with no poster
-    movies_raw, total_pages = get_browse_movies(sort=sort, genre=genre, page=page, per_page=per_page * 2)
-    movies = enrich_with_posters(movies_raw, require_poster=True)[:per_page]
+    if query:
+        movies_raw, total_pages = get_browse_movies(sort=sort, genre=genre, query=query, page=page, per_page=per_page * 2)
+        if movies_raw:
+            movies = enrich_with_posters(movies_raw, require_poster=True)[:per_page]
+        else:
+            movies = search_tmdb(query, page=page)
+            total_pages = 500
+    else:
+        movies_raw, total_pages = get_browse_movies(sort=sort, genre=genre, page=page, per_page=per_page * 2)
+        movies = enrich_with_posters(movies_raw, require_poster=True)[:per_page]
 
     return render_template('browse.html', movies=movies, current_sort=sort,
-                            current_genre=genre, current_page=page, total_pages=total_pages,
+                            current_genre=genre, current_query=query,
+                            current_page=page, total_pages=total_pages,
                             available_genres=['Action', 'Adventure', 'Animation', 'Crime', 'Drama'])
 
 @app.route('/feeling-lucky')
@@ -165,8 +174,7 @@ def get_movie_detail_cached(tmdb_id, max_age_days=5):
     """, (tmdb_id, json.dumps(details)))
     return details
 
-
-def get_browse_movies(sort='recent', genre='all', page=1, per_page=20):
+def get_browse_movies(sort='recent', genre='all', query='', page=1, per_page=20):
     offset = (page - 1) * per_page
     cur = conn.cursor()
 
@@ -178,18 +186,23 @@ def get_browse_movies(sort='recent', genre='all', page=1, per_page=20):
 
     having_clause = "HAVING COUNT(r.rating) >= 200" if sort == 'top_rated' else ""
 
-    genre_filter = ""
+    conditions = []
     params = []
     if genre != 'all':
-        genre_filter = "WHERE m.genres ILIKE %s"
+        conditions.append("m.genres ILIKE %s")
         params.append(f'%{genre}%')
+    if query:
+        conditions.append("m.title ILIKE %s")
+        params.append(f'%{query}%')
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
     count_query = f"""
         SELECT COUNT(*) FROM (
             SELECT m.movie_id
             FROM movies m
             LEFT JOIN ratings r ON m.movie_id = r.movie_id
-            {genre_filter}
+            {where_clause}
             GROUP BY m.movie_id
             {having_clause}
         ) sub
@@ -197,20 +210,20 @@ def get_browse_movies(sort='recent', genre='all', page=1, per_page=20):
     cur.execute(count_query, params)
     total_count = cur.fetchone()[0]
 
-    query = f"""
+    query_sql = f"""
         SELECT m.movie_id, m.title, m.genres,
                COUNT(r.rating) as watch_count,
                AVG(r.rating) as avg_rating
         FROM movies m
         LEFT JOIN ratings r ON m.movie_id = r.movie_id
-        {genre_filter}
+        {where_clause}
         GROUP BY m.movie_id, m.title, m.genres
         {having_clause}
         ORDER BY {order_clause}
         LIMIT %s OFFSET %s
     """
-    params.extend([per_page, offset])
-    cur.execute(query, params)
+    params_full = params + [per_page, offset]
+    cur.execute(query_sql, params_full)
     movies = cur.fetchall()
 
     total_pages = max(1, (total_count + per_page - 1) // per_page)
