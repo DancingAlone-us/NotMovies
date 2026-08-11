@@ -1,11 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>HI</h1>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block head %}
+  <title>Browse — Not Movies</title>
+{% endblock %}
+
+{% block main %}
+<div class="container py-4">
+
+  <!-- Filter bar -->
+  <div class="d-flex flex-wrap gap-3 mb-4 filter-bar">
+    <a href="{{ url_for('browse', sort='recent', genre=current_genre) }}"
+       class="filter-pill {% if current_sort == 'recent' %}active{% endif %}">Most Recent</a>
+    <a href="{{ url_for('browse', sort='watched', genre=current_genre) }}"
+       class="filter-pill {% if current_sort == 'watched' %}active{% endif %}">Most Watched</a>
+    <a href="{{ url_for('browse', sort='top_rated', genre=current_genre) }}"
+       class="filter-pill {% if current_sort == 'top_rated' %}active{% endif %}">Top Rated</a>
+
+    <span class="filter-divider"></span>
+
+    <a href="{{ url_for('browse', sort=current_sort, genre='all') }}"
+       class="filter-pill {% if current_genre == 'all' %}active{% endif %}">All Genre</a>
+    {% for genre in available_genres %}
+    <a href="{{ url_for('browse', sort=current_sort, genre=genre) }}"
+       class="filter-pill {% if current_genre == genre %}active{% endif %}">{{ genre }}</a>
+    {% endfor %}
+  </div>
+
+<div class="row">
+  {% for movie in movies %}
+  <div class="col-6 col-md-3 mb-4">
+    <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="text-decoration-none text-dark">
+      <div class="card border-0">
+        {% if movie.poster_url %}
+          <img src="{{ movie.poster_url }}" class="card-img-top rounded-3" alt="{{ movie.title }}">
+        {% else %}
+          <div class="bg-secondary-subtle rounded-3 d-flex align-items-center justify-content-center" style="aspect-ratio: 2/3;">
+            <small class="text-muted">No poster</small>
+          </div>
+        {% endif %}
+        <div class="card-body px-0 pb-0">
+          <p class="mb-1 fw-semibold small">{{ movie.title }}</p>
+          <small class="text-muted">
+            {% if movie.avg_rating %}★ {{ "%.1f"|format(movie.avg_rating) }}{% else %}No ratings yet{% endif %}
+          </small>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% else %}
+  <p class="text-muted">No movies found for this filter.</p>
+  {% endfor %}
+</div>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+  <nav aria-label="Browse pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('browse', sort=current_sort, genre=current_genre, page=current_page-1) }}">Previous</a>
+      </li>
+
+      {% for p in range(1, total_pages + 1) %}
+        {% if p == 1 or p == total_pages or (p >= current_page - 2 and p <= current_page + 2) %}
+          <li class="page-item {% if p == current_page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('browse', sort=current_sort, genre=current_genre, page=p) }}">{{ p }}</a>
+          </li>
+        {% elif p == current_page - 3 or p == current_page + 3 %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      <li class="page-item {% if current_page >= total_pages %}disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('browse', sort=current_sort, genre=current_genre, page=current_page+1) }}">Next</a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+
+</div>
+{% endblock %}

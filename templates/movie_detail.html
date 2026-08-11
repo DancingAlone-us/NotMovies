@@ -27,7 +27,7 @@
       <h5 class="mt-4 fw-semibold">Cast</h5>
       <div class="d-flex flex-wrap gap-2 mb-4">
         {% for actor in movie.cast %}
-          <span class="badge bg-dark-subtle text-dark px-3 py-2">{{ actor.name }}</span>
+          <span class="badge cast-badge bg-dark-subtle px-3 py-2">{{ actor.name }}</span>
         {% else %}
           <span class="text-muted">Cast information not available</span>
         {% endfor %}

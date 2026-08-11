@@ -1,11 +1,12 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from dotenv import load_dotenv
-from services.tmdb import get_movie_detail, get_now_playing
+from services.tmdb import get_movie_detail, get_now_playing, get_random_tmdb_movie
 import psycopg2
 import requests
 import json
 from datetime import datetime, timedelta
+import random
 
 load_dotenv()
 
@@ -38,7 +39,31 @@ def index():
 
 @app.route('/browse')
 def browse():
-    return render_template('browse.html')
+    sort = request.args.get('sort', 'recent')
+    genre = request.args.get('genre', 'all')
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+
+    # over-fetch to compensate for movies with no poster
+    movies_raw, total_pages = get_browse_movies(sort=sort, genre=genre, page=page, per_page=per_page * 2)
+    movies = enrich_with_posters(movies_raw, require_poster=True)[:per_page]
+
+    return render_template('browse.html', movies=movies, current_sort=sort,
+                            current_genre=genre, current_page=page, total_pages=total_pages,
+                            available_genres=['Action', 'Adventure', 'Animation', 'Crime', 'Drama'])
+
+@app.route('/feeling-lucky')
+def lucky():
+    for _ in range(5):
+        tmdb_id = get_random_tmdb_movie()
+        if not tmdb_id:
+            continue
+        try:
+            get_movie_detail_cached(tmdb_id)
+            return redirect(url_for('movie_detail_tmdb', tmdb_id=tmdb_id))
+        except requests.exceptions.HTTPError:
+            continue
+    return redirect(url_for('browse'))
 
 
 @app.route('/signup')
@@ -58,7 +83,10 @@ def movie_detail(movie_id):
     tmdb_id = get_tmdb_id(movie_id)
     if not tmdb_id:
         return "Movie Not Found", 404
-    details = get_movie_detail_cached(tmdb_id)
+    try:
+        details = get_movie_detail_cached(tmdb_id)
+    except requests.exceptions.HTTPError:
+        return "Movie Not Found", 404
     return render_template('movie_detail.html', movie=details)
 
 
@@ -136,6 +164,83 @@ def get_movie_detail_cached(tmdb_id, max_age_days=5):
         ON CONFLICT (tmdb_id) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW()
     """, (tmdb_id, json.dumps(details)))
     return details
+
+
+def get_browse_movies(sort='recent', genre='all', page=1, per_page=20):
+    offset = (page - 1) * per_page
+    cur = conn.cursor()
+
+    order_clause = {
+        'recent': "substring(m.title from '\\((\\d{4})\\)$')::int DESC NULLS LAST",
+        'watched': 'watch_count DESC NULLS LAST',
+        'top_rated': 'avg_rating DESC NULLS LAST'
+    }.get(sort, 'm.movie_id DESC')
+
+    having_clause = "HAVING COUNT(r.rating) >= 200" if sort == 'top_rated' else ""
+
+    genre_filter = ""
+    params = []
+    if genre != 'all':
+        genre_filter = "WHERE m.genres ILIKE %s"
+        params.append(f'%{genre}%')
+
+    count_query = f"""
+        SELECT COUNT(*) FROM (
+            SELECT m.movie_id
+            FROM movies m
+            LEFT JOIN ratings r ON m.movie_id = r.movie_id
+            {genre_filter}
+            GROUP BY m.movie_id
+            {having_clause}
+        ) sub
+    """
+    cur.execute(count_query, params)
+    total_count = cur.fetchone()[0]
+
+    query = f"""
+        SELECT m.movie_id, m.title, m.genres,
+               COUNT(r.rating) as watch_count,
+               AVG(r.rating) as avg_rating
+        FROM movies m
+        LEFT JOIN ratings r ON m.movie_id = r.movie_id
+        {genre_filter}
+        GROUP BY m.movie_id, m.title, m.genres
+        {having_clause}
+        ORDER BY {order_clause}
+        LIMIT %s OFFSET %s
+    """
+    params.extend([per_page, offset])
+    cur.execute(query, params)
+    movies = cur.fetchall()
+
+    total_pages = max(1, (total_count + per_page - 1) // per_page)
+    return movies, total_pages
+
+def enrich_with_posters(movies, require_poster=False):
+    enriched = []
+    for row in movies:
+        movie_id, title, genres, watch_count, avg_rating = row
+        tmdb_id = get_tmdb_id(movie_id)
+        poster_url = None
+        if tmdb_id:
+            try:
+                details = get_movie_detail_cached(tmdb_id)
+                poster_url = details.get('poster_url')
+            except requests.exceptions.HTTPError:
+                pass
+
+        if require_poster and not poster_url:
+            continue
+
+        enriched.append({
+            'movie_id': movie_id,
+            'title': title,
+            'genres': genres,
+            'watch_count': watch_count,
+            'avg_rating': avg_rating,
+            'poster_url': poster_url
+        })
+    return enriched
 
 
 if __name__ == "__main__":

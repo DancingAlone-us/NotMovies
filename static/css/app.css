@@ -171,3 +171,39 @@ body{
 [data-bs-theme="dark"] .text-muted {
   color: #999 !important;
 }
+
+[data-bs-theme = 'dark'].cast-badge{
+  background-color: #333 !important;
+  color: #eee !important;
+}
+
+
+.filter-bar {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+}
+
+.filter-pill {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  color: #111;
+}
+
+.filter-pill.active {
+  color: #111;
+  font-weight: 600;
+  border-bottom-color: #111;
+}
+
+.filter-divider {
+  width: 1px;
+  background: #ddd;
+  margin: 0 0.25rem;
+}
