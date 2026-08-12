@@ -29,7 +29,8 @@
 <div class="row">
   {% for movie in movies %}
   <div class="col-6 col-md-3 mb-4">
-    <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) }}" class="text-decoration-none text-dark">
+    <a href="{{ url_for('movie_detail', movie_id=movie.movie_id) if movie.movie_id else url_for('movie_detail_tmdb', tmdb_id=movie.tmdb_id) }}"
+       class="text-decoration-none text-dark">
       <div class="card border-0">
         {% if movie.poster_url %}
           <img src="{{ movie.poster_url }}" class="card-img-top rounded-3" alt="{{ movie.title }}">
