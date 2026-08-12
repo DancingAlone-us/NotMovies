@@ -363,3 +363,25 @@ body{
 .chat-input-row {
   border-top: 1px solid #ddd;
 }
+
+.nav-search-form {
+  max-width: 220px;
+}
+
+.nav-search-input {
+  border-radius: 20px 0 0 20px;
+  border-right: none;
+}
+
+.nav-search-btn {
+  border-radius: 0 20px 20px 0;
+  border: 1px solid #ced4da;
+  border-left: none;
+  background-color: #fff;
+}
+
+[data-bs-theme="dark"] .nav-search-btn {
+  background-color: #212529;
+  border-color: #495057;
+  color: #eee;
+}
