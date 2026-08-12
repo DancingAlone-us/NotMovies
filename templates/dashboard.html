@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <title>Dashboard — Not Movies</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block main %}
+<div class="container py-4">
+
+  <!-- Stat cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="dash-card p-3 rounded-3 border">
+        <p class="text-muted small mb-1">Total Watched</p>
+        <p class="fs-3 fw-bold mb-0">{{ total_watched }}</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="dash-card p-3 rounded-3 border">
+        <p class="text-muted small mb-1">Most Watched Genre</p>
+        <p class="fs-3 fw-bold mb-0">{{ most_watched_genre }}</p>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="dash-card p-3 rounded-3 border">
+        <p class="text-muted small mb-1">Account</p>
+        <p class="fs-5 fw-semibold mb-0">{{ current_user.username }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Change password -->
+    <div class="col-12 col-lg-6">
+      <div class="dash-card p-4 rounded-3 border h-100">
+        <h5 class="fw-bold mb-3">Change Password</h5>
+        <form method="POST" action="{{ url_for('change_password') }}">
+          <input type="password" name="current_password" class="form-control mb-2" placeholder="Current password" required>
+          <input type="password" name="new_password" class="form-control mb-2" placeholder="New password" required>
+          <input type="password" name="confirm_new_password" class="form-control mb-3" placeholder="Confirm new password" required>
+          <button type="submit" class="submit-btn btn w-100">Update Password</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Genre chart -->
+    <div class="col-12 col-lg-6">
+      <div class="dash-card p-4 rounded-3 border h-100">
+        <h5 class="fw-bold mb-3">Genres You Watch Most</h5>
+        {% if genre_labels %}
+          <canvas id="genreChart"></canvas>
+        {% else %}
+          <p class="text-muted">Watch some movies to see your genre breakdown.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Watched list -->
+  <div class="dash-card p-4 rounded-3 border">
+    <h5 class="fw-bold mb-3">Watched Movies ({{ total_watched }})</h5>
+    <div class="row">
+      {% for movie in watched_movies %}
+      <div class="col-6 col-md-3 mb-4">
+        <div class="card border-0">
+          {% if movie[2] %}
+            <img src="{{ movie[2] }}" class="card-img-top rounded-3" alt="{{ movie[1] }}">
+          {% else %}
+            <div class="bg-secondary-subtle rounded-3" style="aspect-ratio: 2/3;"></div>
+          {% endif %}
+          <div class="card-body px-0 pb-0">
+            <p class="mb-1 fw-semibold small">{{ movie[1] }}</p>
+            <form method="POST" action="{{ url_for('remove_watched') }}">
+              <input type="hidden" name="tmdb_id" value="{{ movie[0] }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger w-100 mt-1">Remove</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-muted">You haven't marked any movies as watched yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+{% if genre_labels %}
+<script>
+  const ctx = document.getElementById('genreChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ genre_labels|tojson }},
+      datasets: [{
+        label: 'Movies watched',
+        data: {{ genre_counts|tojson }},
+        backgroundColor: '#333'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

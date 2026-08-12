@@ -28,12 +28,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const tmdbId = toggle.dataset.tmdbId;
     const title = toggle.dataset.title;
     const poster = toggle.dataset.poster;
+    const genre = toggle.dataset.genres
     const currentlyWatched = toggle.dataset.watched === 'true';
 
     fetch('/watched/toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ tmdb_id: tmdbId, title: title, poster_url: poster })
+      body: new URLSearchParams({ tmdb_id: tmdbId, title: title, poster_url: poster, genres: genre })
     })
       .then(res => res.json())
       .then(data => {

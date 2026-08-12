@@ -11,6 +11,7 @@ import random
 from werkzeug.security import generate_password_hash, check_password_hash
 from services.mailer import send_verification_email
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from collections import Counter
 
 load_dotenv()
 
@@ -185,6 +186,65 @@ def register():
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html')
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT tmdb_id, movie_title, poster_url, genres, watched_at
+        FROM watched
+        WHERE user_id = %s
+        ORDER BY watched_at DESC
+    """, (current_user.id,))
+    watched_movies = cur.fetchall()
+
+    genre_counter = Counter()
+    for row in watched_movies:
+        genres = row[3]
+        if genres:
+            for g in genres.split(','):
+                g = g.strip()
+                if g:
+                    genre_counter[g] += 1
+
+    top_genres = genre_counter.most_common(6)
+    most_watched_genre = top_genres[0][0] if top_genres else "N/A"
+
+    return render_template('dashboard.html',
+                            watched_movies=watched_movies,
+                            total_watched=len(watched_movies),
+                            most_watched_genre=most_watched_genre,
+                            genre_labels=[g[0] for g in top_genres],
+                            genre_counts=[g[1] for g in top_genres])
+
+@app.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_new_password = request.form.get('confirm_new_password', '')
+
+    cur = conn.cursor()
+    cur.execute("SELECT password_hash FROM users WHERE user_id = %s", (current_user.id,))
+    row = cur.fetchone()
+
+    if not row or not check_password_hash(row[0], current_password):
+        flash("Current password is incorrect.")
+        return redirect(url_for('dashboard'))
+
+    if new_password != confirm_new_password:
+        flash("New passwords don't match.")
+        return redirect(url_for('dashboard'))
+
+    if len(new_password) < 6:
+        flash("New password must be at least 6 characters long.")
+        return redirect(url_for('dashboard'))
+
+    new_hash = generate_password_hash(new_password)
+    cur.execute("UPDATE users SET password_hash = %s WHERE user_id = %s", (new_hash, current_user.id))
+    flash("Password updated successfully.")
+    return redirect(url_for('dashboard'))
 
 
 def get_tmdb_id(movie_id):
@@ -394,6 +454,7 @@ def toggle_watched():
     tmdb_id = request.form.get('tmdb_id', type=int)
     title = request.form.get('title')
     poster_url = request.form.get('poster_url') or None
+    genres = request.form.get('genres') or None
 
     cur = conn.cursor()
     cur.execute("SELECT 1 FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
@@ -404,12 +465,20 @@ def toggle_watched():
         now_watched = False
     else:
         cur.execute("""
-            INSERT INTO watched (user_id, tmdb_id, movie_title, poster_url)
-            VALUES (%s, %s, %s, %s)
-        """, (current_user.id, tmdb_id, title, poster_url))
+            INSERT INTO watched (user_id, tmdb_id, movie_title, poster_url, genres)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (current_user.id, tmdb_id, title, poster_url, genres))
         now_watched = True
 
     return {"watched": now_watched}
+
+@app.route('/watched/remove', methods=['POST'])
+@login_required
+def remove_watched():
+    tmdb_id = request.form.get('tmdb_id', type=int)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
+    return redirect(url_for('dashboard'))
 
 
 if __name__ == "__main__":

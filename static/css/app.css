@@ -266,3 +266,12 @@ body{
 [data-bs-theme="dark"] .watched-toggle:hover {
   color: #fff;
 }
+
+.dash-card {
+  background-color: #fff;
+}
+
+[data-bs-theme="dark"] .dash-card {
+  background-color: #1e1e1e;
+  border-color: #333 !important;
+}
