@@ -16,3 +16,34 @@ document.addEventListener('DOMContentLoaded', function () {
     updateIcon(next);
   });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const toggle = document.getElementById('watchedToggle');
+  if (!toggle) return;
+
+  const icon = document.getElementById('watchedIcon');
+  const label = document.getElementById('watchedLabel');
+
+  toggle.addEventListener('click', function () {
+    const tmdbId = toggle.dataset.tmdbId;
+    const title = toggle.dataset.title;
+    const poster = toggle.dataset.poster;
+    const currentlyWatched = toggle.dataset.watched === 'true';
+
+    fetch('/watched/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ tmdb_id: tmdbId, title: title, poster_url: poster })
+    })
+      .then(res => res.json())
+      .then(data => {
+        const nowWatched = data.watched;
+        toggle.dataset.watched = nowWatched;
+        icon.className = nowWatched ? 'bi bi-heart-fill' : 'bi bi-heart';
+        label.textContent = nowWatched ? 'Watched' : 'Already Watched?';
+      })
+      .catch(() => {
+        
+      });
+  });
+});

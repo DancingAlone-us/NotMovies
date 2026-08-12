@@ -243,3 +243,26 @@ body{
 [data-bs-theme="dark"] .user {
   color: #fff;
 }
+
+.watched-toggle {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+  user-select: none;
+}
+
+.watched-toggle:hover {
+  color: #000;
+}
+
+.watched-toggle .bi-heart-fill {
+  color: #dc3545;
+}
+
+[data-bs-theme="dark"] .watched-toggle {
+  color: #ddd;
+}
+
+[data-bs-theme="dark"] .watched-toggle:hover {
+  color: #fff;
+}

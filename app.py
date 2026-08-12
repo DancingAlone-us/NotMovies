@@ -388,6 +388,29 @@ def verify_account(token):
     flash("Your account has been verified! You can now log in.")
     return redirect(url_for('signup'))
 
+@app.route('/watched/toggle', methods=['POST'])
+@login_required
+def toggle_watched():
+    tmdb_id = request.form.get('tmdb_id', type=int)
+    title = request.form.get('title')
+    poster_url = request.form.get('poster_url') or None
+
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
+    already_watched = cur.fetchone() is not None
+
+    if already_watched:
+        cur.execute("DELETE FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
+        now_watched = False
+    else:
+        cur.execute("""
+            INSERT INTO watched (user_id, tmdb_id, movie_title, poster_url)
+            VALUES (%s, %s, %s, %s)
+        """, (current_user.id, tmdb_id, title, poster_url))
+        now_watched = True
+
+    return {"watched": now_watched}
+
 
 if __name__ == "__main__":
     app.run(debug=True)

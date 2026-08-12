@@ -21,7 +21,24 @@
 
     <!-- Details -->
     <div class="col-md-8">
-      <h1 class="fw-bold">{{ movie.title }}</h1>
+
+      <div class="d-flex justify-content-between align-items-start">
+        <h1 class="fw-bold mb-0">{{ movie.title }}</h1>
+
+        {% if current_user.is_authenticated %}
+        <div class="watched-toggle d-flex align-items-center gap-1 flex-shrink-0"
+             id="watchedToggle"
+             data-tmdb-id="{{ movie.tmdb_id }}"
+             data-title="{{ movie.title }}"
+             data-poster="{{ movie.poster_url or '' }}"
+             data-watched="{{ 'true' if movie.is_watched else 'false' }}"
+             role="button">
+          <i class="bi {% if movie.is_watched %}bi-heart-fill{% else %}bi-heart{% endif %}" id="watchedIcon"></i>
+          <span id="watchedLabel">{% if movie.is_watched %}Watched{% else %}Already Watched?{% endif %}</span>
+        </div>
+        {% endif %}
+      </div>
+
       <p class="mt-3">{{ movie.synopsis }}</p>
 
       <h5 class="mt-4 fw-semibold">Cast</h5>
@@ -44,6 +61,7 @@
       {% else %}
       <p class="text-muted">No trailer available.</p>
       {% endif %}
+
     </div>
 
   </div>
