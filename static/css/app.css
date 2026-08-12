@@ -207,3 +207,39 @@ body{
   background: #ddd;
   margin: 0 0.25rem;
 }
+
+.submit-btn {
+  background-color: #000;
+  color: #fff;
+  border: 1px solid #000;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.submit-btn:hover {
+  background-color: #222;
+  color: #fff;
+}
+
+[data-bs-theme="dark"] .submit-btn {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #fff;
+}
+
+[data-bs-theme="dark"] .submit-btn:hover {
+  background-color: #eee;
+  color: #000;
+}
+
+.user {
+  color: #000;
+  text-decoration: none;
+}
+
+.user:hover {
+  text-decoration: underline;
+}
+
+[data-bs-theme="dark"] .user {
+  color: #fff;
+}

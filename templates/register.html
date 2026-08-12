@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block head %}
+<title>Register - NotMovies</title>
+{% endblock %}
+
+{% block main %}
+<div class="container min-vh-100 d-flex align-items-center">
+  <div class="row justify-content-center w-100">
+
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 border rounded shadow-sm bg-body">
+
+      <div class="text-center my-4">
+        <h2>Create Your Account</h2>
+        <h1 class="h4 mt-2">Welcome To NotMovies!</h1>
+      </div>
+
+      <!-- Error Message Display -->
+      <div id="errorMessage" class="alert alert-danger alert-dismissible fade show mx-4 d-none" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span id="errorText"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Success Message Display -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show mx-4" role="alert">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+     <form class="p-4" method="POST" action="/register" onsubmit="return validateForm()">
+
+
+  <div class="mb-3">
+    <label class="form-label">Username <span class="text-danger">*</span></label>
+    <input type="text" class="form-control"
+           id="InputUserName1"
+           name="username"
+           placeholder="JohnDoe360">
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Email <span class="text-danger">*</span></label>
+    <input type="email" class="form-control"
+           id="InputEmail1"
+           name="email"
+           placeholder="example@gmail.com"
+           required>
+  </div>
+
+
+  <div class="mb-3">
+    <label class="form-label">Password<span class="text-danger">*</span></label>
+    <input type="password" class="form-control"
+           id="InputPassword1"
+           name="password"
+           required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Confirm Password<span class="text-danger">*</span></label>
+    <input type="password" class="form-control"
+           id="InputPassword2"
+           name="confirm_password"
+           required>
+  </div>
+
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input"
+           id="exampleCheck1"
+           name="terms"
+           required>
+    <label class="form-check-label">
+      I agree to the <a href="{{ url_for('privacy') }}" class="user">Privacy Policies</a>
+    </label>
+  </div>
+
+  <button type="submit" class="submit-btn btn w-100">
+    Submit
+  </button>
+
+</form>
+<div class="divider text-center align-items-center my-2 d-flex">
+        <span class="mx-2">Or</span>
+      </div>
+      <p class="text-center">Already have an account? <a href="{{ url_for('signup') }}" class="user">Login</a></p>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+function validateForm() {
+  const password = document.getElementById('InputPassword1').value;
+  const confirmPassword = document.getElementById('InputPassword2').value;
+  const errorMessage = document.getElementById('errorMessage');
+  const errorText = document.getElementById('errorText');
+
+  errorMessage.classList.add('d-none');
+
+  if (password !== confirmPassword) {
+    errorText.textContent = "Passwords don't match. Please try again.";
+    errorMessage.classList.remove('d-none');
+    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+
+  if (password.length < 6) {
+    errorText.textContent = "Password must be at least 6 characters long.";
+    errorMessage.classList.remove('d-none');
+    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+
+  return true;
+}
+</script>
+
+{% endblock %}

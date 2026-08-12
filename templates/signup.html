@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block head %}
+<title>Log In - NotMovies</title>
+{% endblock %}
+
+{% block main %}
+<div class="container min-vh-100 d-flex align-items-center">
+  <div class="row justify-content-center w-100">
+
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 border rounded shadow-sm bg-body">
+
+      <div class="text-center my-4">
+        <h2>Log In</h2>
+        <h1 class="h4 mt-2">Welcome To NotMovies!</h1>
+      </div>
+
+      <!-- Error Message Display -->
+      {% if msg %}
+        <div class="alert alert-danger alert-dismissible fade show mx-4" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
+
+      <form class="p-4" method="post">
+
+        <div class="mb-3">
+          <label for="InputEmail1" class="form-label">
+            Email address <span class="text-danger">*</span>
+          </label>
+          <input type="email" class="form-control" id="InputEmail1" placeholder="example@gmail.com" name="email" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="exampleInputPassword1" class="form-label">
+            Password <span class="text-danger">*</span>
+          </label>
+          <input type="password" class="form-control" id="exampleInputPassword1" name="password" required>
+        </div>
+
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="exampleCheck1">
+          <label class="form-check-label" for="exampleCheck1">
+            Remember Me?
+          </label>
+        </div>
+
+        <button type="submit" class="submit-btn btn w-100">
+          Submit
+        </button>
+
+      </form>
+      <div class="divider text-center align-items-center my-2 d-flex">
+        <span class="mx-auto text-center">Or</span>
+      </div>
+      <p class="text-center">New User? <a href="{{ url_for('register') }}" class="user">Register</a></p>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

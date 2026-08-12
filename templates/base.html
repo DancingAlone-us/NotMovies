@@ -62,19 +62,23 @@
                 >Feeling Lucky?</a
               >
             </li>
-            <li class="nav-item">
-              <a
-                class="btn bg-dark text-white px-3 py-2"
-                href="{{ url_for('signup') }}"
-                >Sign Up</a
-              >
-            </li>
-
-            <li class="nav-item">
-              <button id = 'themeToggle' class="btn btn-sm btn-outline-secondary mt-1" type="button" aria-label="Toggle dark Mode">
-                <i class="bi bi-moon" id="themeIcon"></i>
-              </button>
-            </li>
+<li class="nav-item">
+  <button id="themeToggle" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Toggle dark mode">
+    <i class="bi bi-moon-fill" id="themeIcon"></i>
+  </button>
+</li>
+<li class="nav-item">
+  {% if current_user.is_authenticated %}
+    <span class="nav-link">Welcome, {{ current_user.username }}</span>
+  {% endif %}
+</li>
+<li class="nav-item">
+  {% if current_user.is_authenticated %}
+    <a class="btn bg-dark text-white px-3 py-2" href="{{ url_for('logout') }}">Log Out</a>
+  {% else %}
+    <a class="btn bg-dark text-white px-3 py-2" href="{{ url_for('signup') }}">Sign Up</a>
+  {% endif %}
+</li>
           </ul>
         </div>
       </div>

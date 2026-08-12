@@ -29,3 +29,10 @@ CREATE TABLE tmdb_cache(
     data JSONB NOT NULL,
     fetched_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+);

@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+import secrets
+from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 from services.tmdb import get_movie_detail, get_now_playing, get_random_tmdb_movie, search_tmdb
 import psycopg2
@@ -7,6 +8,9 @@ import requests
 import json
 from datetime import datetime, timedelta
 import random
+from werkzeug.security import generate_password_hash, check_password_hash
+from services.mailer import send_verification_email
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 load_dotenv()
 
@@ -21,6 +25,25 @@ def get_db_connection():
 
 
 conn = get_db_connection()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'signup'
+
+class User(UserMixin):
+    def __init__(self, user_id, username, email):
+        self.id = user_id
+        self.username = username
+        self.email = email
+
+@login_manager.user_loader
+def load_user(user_id):
+    cur = conn.cursor()
+    cur.execute("SELECT user_id, username, email FROM users WHERE user_id = %s", (user_id,))
+    row = cur.fetchone()
+    if not row:
+        return None
+    return User(row[0], row[1], row[2])
 
 
 @app.route('/')
@@ -75,9 +98,93 @@ def lucky():
     return redirect(url_for('browse'))
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'GET':
+        return render_template('signup.html')
+
+    email = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '')
+
+    cur = conn.cursor()
+    cur.execute("SELECT user_id, username, password_hash, is_verified FROM users WHERE email = %s", (email,))
+    row = cur.fetchone()
+
+    if not row:
+        return render_template('signup.html', msg="No account found with that email.")
+
+    user_id, username, password_hash, is_verified = row
+
+    if not check_password_hash(password_hash, password):
+        return render_template('signup.html', msg="Incorrect password. Please try again.")
+
+    if not is_verified:
+        return render_template('signup.html', msg="Please verify your account first — check your email for the verification link.")
+
+    login_user(User(user_id, username, email))
+    return redirect(url_for('index'))
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("User has been logged out")
+    return redirect(url_for('landing'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template('register.html')
+
+    username = request.form.get('username', '').strip()
+    email = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    if not username or not email or not password:
+        flash("All required fields must be filled in.")
+        return redirect(url_for('register'))
+
+    if password != confirm_password:
+        flash("Passwords don't match. Please try again.")
+        return redirect(url_for('register'))
+
+    if len(password) < 6:
+        flash("Password must be at least 6 characters long.")
+        return redirect(url_for('register'))
+
+    password_hash = generate_password_hash(password)
+
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING user_id",
+            (username, email, password_hash)
+        )
+        user_id = cur.fetchone()[0]
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        flash("That username or email is already taken.")
+        return redirect(url_for('register'))
+
+    # generate and store the verification token
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now() + timedelta(minutes=10)
+    cur.execute("""
+        INSERT INTO verification_tokens (user_id, token, expires_at)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at
+    """, (user_id, token, expires_at))
+
+    verify_link = url_for('verify_account', token=token, _external=True)
+    send_verification_email(email, verify_link)
+
+    flash("Account created! Check your email for a verification link before logging in.")
+    return redirect(url_for('signup'))
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
 
 
 def get_tmdb_id(movie_id):
@@ -254,6 +361,32 @@ def enrich_with_posters(movies, require_poster=False):
             'poster_url': poster_url
         })
     return enriched
+
+@app.route('/verify/<token>')
+def verify_account(token):
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT user_id, expires_at
+        FROM verification_tokens
+        WHERE token = %s
+    """, (token,))
+    row = cur.fetchone()
+
+    if not row:
+        flash("Invalid or already-used verification link.")
+        return redirect(url_for('signup'))
+
+    user_id, expires_at = row
+
+    if expires_at < datetime.now():
+        flash("This verification link has expired. Please register again or request a new link.")
+        return redirect(url_for('signup'))
+
+    cur.execute("UPDATE users SET is_verified = TRUE WHERE user_id = %s", (user_id,))
+    cur.execute("DELETE FROM verification_tokens WHERE user_id = %s", (user_id,))
+
+    flash("Your account has been verified! You can now log in.")
+    return redirect(url_for('signup'))
 
 
 if __name__ == "__main__":
