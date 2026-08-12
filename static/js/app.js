@@ -48,3 +48,48 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const toggle = document.getElementById('chatToggle');
+  const panel = document.getElementById('chatPanel');
+  const closeBtn = document.getElementById('chatClose');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('chatInput');
+  const messages = document.getElementById('chatMessages');
+
+  toggle.addEventListener('click', () => panel.classList.toggle('d-none'));
+  closeBtn.addEventListener('click', () => panel.classList.add('d-none'));
+
+  function addBubble(text, sender) {
+    const bubble = document.createElement('div');
+    bubble.className = `chat-bubble ${sender}`;
+    bubble.textContent = text;
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    addBubble(text, 'user');
+    input.value = '';
+
+    addBubble('Thinking...', 'bot');
+    const thinkingBubble = messages.lastChild;
+
+    fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    })
+      .then(res => res.json())
+      .then(data => {
+        thinkingBubble.textContent = data.reply;
+      })
+      .catch(() => {
+        thinkingBubble.textContent = "Sorry, something went wrong.";
+      });
+  });
+});

@@ -111,6 +111,26 @@
     <div class="footer text-center px-3 py-4">
       <h1 class="fs-3 fw-bold">Not Movies</h1>
       <p class="fs-6 mb-0">Disclaimer</p>
+
+      <!-- Floating Chatbot -->
+<div id="chatWidget" class="chat-widget">
+  <button id="chatToggle" class="chat-toggle-btn" aria-label="Open chat">
+    <i class="bi bi-chat-dots-fill"></i>
+  </button>
+
+  <div id="chatPanel" class="chat-panel d-none">
+    <div class="chat-header d-flex justify-content-between align-items-center px-3 py-2">
+      <span class="fw-semibold">Ask Not Movies</span>
+      <button id="chatClose" class="btn-close btn-close-white" aria-label="Close chat"></button>
+    </div>
+    <div id="chatMessages" class="chat-messages p-3"></div>
+    <form id="chatForm" class="chat-input-row d-flex gap-2 p-2">
+      <input type="text" id="chatInput" class="form-control" placeholder="What do you want to watch?" autocomplete="off">
+      <button type="submit" class="submit-btn btn">Send</button>
+    </form>
+  </div>
+</div>
+
     </div>
   </body>
 </html>

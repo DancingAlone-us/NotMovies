@@ -12,11 +12,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from services.mailer import send_verification_email
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from collections import Counter
+from google import genai
 
 load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/static')
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
+
+gemini_client = genai.Client(api_key= os.getenv('GEMINI_API_KEY'))
 
 
 def get_db_connection():
@@ -245,6 +248,24 @@ def change_password():
     cur.execute("UPDATE users SET password_hash = %s WHERE user_id = %s", (new_hash, current_user.id))
     flash("Password updated successfully.")
     return redirect(url_for('dashboard'))
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    user_message = data.get('message', '').strip()
+
+    if not user_message:
+        return {"reply": "Say something and I'll help you find a movie!"}
+
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=f"You are a friendly movie recommendation assistant for a site called Not Movies. Respond briefly and conversationally to: {user_message}"
+        )
+        return {"reply": response.text}
+    except Exception as e:
+        print("Gemini error:", e)
+        return {"reply": "Sorry, I'm having trouble right now. Try again in a moment."}, 500
 
 
 def get_tmdb_id(movie_id):
