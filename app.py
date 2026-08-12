@@ -480,6 +480,10 @@ def remove_watched():
     cur.execute("DELETE FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
     return redirect(url_for('dashboard'))
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'),404
+
 
 if __name__ == "__main__":
     app.run(debug=True)
