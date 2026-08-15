@@ -312,8 +312,11 @@ def get_new_movies(limit=8):
 def get_top_rated_movies(limit=20):
     cur = conn.cursor()
     cur.execute(f"""
-        SELECT movie_id, title, avg_rating
-        FROM top_rated_movies
+        SELECT m.movie_id, m.title, ms.avg_rating
+        FROM movies m
+        JOIN movie_stats ms ON m.movie_id = ms.movie_id
+        WHERE ms.watch_count >= 200
+        ORDER BY ms.avg_rating DESC NULLS LAST
         LIMIT {int(limit)}
     """)
     return cur.fetchall()
