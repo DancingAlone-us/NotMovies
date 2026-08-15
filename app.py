@@ -368,11 +368,11 @@ def get_browse_movies(sort='recent', genre='all', query='', page=1, per_page=20)
 
     order_clause = {
         'recent': "substring(m.title from '\\((\\d{4})\\)$')::int DESC NULLS LAST",
-        'watched': 'watch_count DESC NULLS LAST',
-        'top_rated': 'avg_rating DESC NULLS LAST'
+        'watched': 'ms.watch_count DESC NULLS LAST',
+        'top_rated': 'ms.avg_rating DESC NULLS LAST'
     }.get(sort, 'm.movie_id DESC')
 
-    having_clause = "HAVING COUNT(r.rating) >= 200" if sort == 'top_rated' else ""
+    having_clause = "AND ms.watch_count >= 200" if sort == 'top_rated' else ""
 
     conditions = []
     params = []
@@ -383,30 +383,22 @@ def get_browse_movies(sort='recent', genre='all', query='', page=1, per_page=20)
         conditions.append("m.title ILIKE %s")
         params.append(f'%{query}%')
 
-    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    where_clause = f"WHERE {' AND '.join(conditions)} {having_clause}" if conditions else (f"WHERE 1=1 {having_clause}" if having_clause else "")
 
     count_query = f"""
-        SELECT COUNT(*) FROM (
-            SELECT m.movie_id
-            FROM movies m
-            LEFT JOIN ratings r ON m.movie_id = r.movie_id
-            {where_clause}
-            GROUP BY m.movie_id
-            {having_clause}
-        ) sub
+        SELECT COUNT(*)
+        FROM movies m
+        LEFT JOIN movie_stats ms ON m.movie_id = ms.movie_id
+        {where_clause}
     """
     cur.execute(count_query, params)
     total_count = cur.fetchone()[0]
 
     query_sql = f"""
-        SELECT m.movie_id, m.title, m.genres,
-               COUNT(r.rating) as watch_count,
-               AVG(r.rating) as avg_rating
+        SELECT m.movie_id, m.title, m.genres, ms.watch_count, ms.avg_rating
         FROM movies m
-        LEFT JOIN ratings r ON m.movie_id = r.movie_id
+        LEFT JOIN movie_stats ms ON m.movie_id = ms.movie_id
         {where_clause}
-        GROUP BY m.movie_id, m.title, m.genres
-        {having_clause}
         ORDER BY {order_clause}
         LIMIT %s OFFSET %s
     """
