@@ -19,7 +19,7 @@ load_dotenv()
 app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/static')
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
-gemini_client = genai.Client(api_key= os.getenv('GEMINI_API_KEY'))
+gemini_client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
 
 def get_db_connection():
@@ -28,11 +28,27 @@ def get_db_connection():
     return conn
 
 
+# initial connection, opened once at startup
 conn = get_db_connection()
+
+
+def get_conn():
+    """Returns a healthy connection, transparently reconnecting if the
+    existing one has gone stale (e.g. dropped by Supabase's pooler)."""
+    global conn
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+    except (psycopg2.OperationalError, psycopg2.InterfaceError):
+        conn = get_db_connection()
+    return conn
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'signup'
+
 
 class User(UserMixin):
     def __init__(self, user_id, username, email):
@@ -40,9 +56,10 @@ class User(UserMixin):
         self.username = username
         self.email = email
 
+
 @login_manager.user_loader
 def load_user(user_id):
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("SELECT user_id, username, email FROM users WHERE user_id = %s", (user_id,))
     row = cur.fetchone()
     if not row:
@@ -88,6 +105,7 @@ def browse():
                             current_page=page, total_pages=total_pages,
                             available_genres=['Action', 'Adventure', 'Animation', 'Crime', 'Drama'])
 
+
 @app.route('/feeling-lucky')
 def lucky():
     for _ in range(5):
@@ -110,7 +128,7 @@ def signup():
     email = request.form.get('email', '').strip().lower()
     password = request.form.get('password', '')
 
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("SELECT user_id, username, password_hash, is_verified FROM users WHERE email = %s", (email,))
     row = cur.fetchone()
 
@@ -128,12 +146,14 @@ def signup():
     login_user(User(user_id, username, email))
     return redirect(url_for('index'))
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash("User has been logged out")
     return redirect(url_for('landing'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -159,7 +179,7 @@ def register():
 
     password_hash = generate_password_hash(password)
 
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     try:
         cur.execute(
             "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING user_id",
@@ -167,7 +187,7 @@ def register():
         )
         user_id = cur.fetchone()[0]
     except psycopg2.errors.UniqueViolation:
-        conn.rollback()
+        get_conn().rollback()
         flash("That username or email is already taken.")
         return redirect(url_for('register'))
 
@@ -186,14 +206,16 @@ def register():
     flash("Account created! Check your email for a verification link before logging in.")
     return redirect(url_for('signup'))
 
+
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html')
 
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("""
         SELECT tmdb_id, movie_title, poster_url, genres, watched_at
         FROM watched
@@ -221,6 +243,7 @@ def dashboard():
                             genre_labels=[g[0] for g in top_genres],
                             genre_counts=[g[1] for g in top_genres])
 
+
 @app.route('/change-password', methods=['POST'])
 @login_required
 def change_password():
@@ -228,7 +251,7 @@ def change_password():
     new_password = request.form.get('new_password', '')
     confirm_new_password = request.form.get('confirm_new_password', '')
 
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("SELECT password_hash FROM users WHERE user_id = %s", (current_user.id,))
     row = cur.fetchone()
 
@@ -248,6 +271,7 @@ def change_password():
     cur.execute("UPDATE users SET password_hash = %s WHERE user_id = %s", (new_hash, current_user.id))
     flash("Password updated successfully.")
     return redirect(url_for('dashboard'))
+
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -269,7 +293,7 @@ def chat():
 
 
 def get_tmdb_id(movie_id):
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("SELECT tmdb_id from links where movie_id = %s", (movie_id,))
     row = cur.fetchone()
     return row[0] if row else None
@@ -298,7 +322,7 @@ def movie_detail_tmdb(tmdb_id):
 
 
 def get_new_movies(limit=8):
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("""
     SELECT movie_id, title
     FROM movies
@@ -310,7 +334,7 @@ def get_new_movies(limit=8):
 
 
 def get_top_rated_movies(limit=20):
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute(f"""
         SELECT m.movie_id, m.title, ms.avg_rating
         FROM movies m
@@ -339,7 +363,7 @@ def use_tmdb(rows):
 
 
 def get_movie_detail_cached(tmdb_id, max_age_days=5):
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute('SELECT data, fetched_at FROM tmdb_cache WHERE tmdb_id = %s', (tmdb_id,))
     row = cur.fetchone()
 
@@ -365,9 +389,10 @@ def get_movie_detail_cached(tmdb_id, max_age_days=5):
     """, (tmdb_id, json.dumps(details)))
     return details
 
+
 def get_browse_movies(sort='recent', genre='all', query='', page=1, per_page=20):
     offset = (page - 1) * per_page
-    cur = conn.cursor()
+    cur = get_conn().cursor()
 
     order_clause = {
         'recent': "substring(m.title from '\\((\\d{4})\\)$')::int DESC NULLS LAST",
@@ -412,6 +437,7 @@ def get_browse_movies(sort='recent', genre='all', query='', page=1, per_page=20)
     total_pages = max(1, (total_count + per_page - 1) // per_page)
     return movies, total_pages
 
+
 def enrich_with_posters(movies, require_poster=False):
     enriched = []
     for row in movies:
@@ -438,9 +464,10 @@ def enrich_with_posters(movies, require_poster=False):
         })
     return enriched
 
+
 @app.route('/verify/<token>')
 def verify_account(token):
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("""
         SELECT user_id, expires_at
         FROM verification_tokens
@@ -464,6 +491,7 @@ def verify_account(token):
     flash("Your account has been verified! You can now log in.")
     return redirect(url_for('signup'))
 
+
 @app.route('/watched/toggle', methods=['POST'])
 @login_required
 def toggle_watched():
@@ -472,7 +500,7 @@ def toggle_watched():
     poster_url = request.form.get('poster_url') or None
     genres = request.form.get('genres') or None
 
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("SELECT 1 FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
     already_watched = cur.fetchone() is not None
 
@@ -488,18 +516,20 @@ def toggle_watched():
 
     return {"watched": now_watched}
 
+
 @app.route('/watched/remove', methods=['POST'])
 @login_required
 def remove_watched():
     tmdb_id = request.form.get('tmdb_id', type=int)
-    cur = conn.cursor()
+    cur = get_conn().cursor()
     cur.execute("DELETE FROM watched WHERE user_id = %s AND tmdb_id = %s", (current_user.id, tmdb_id))
     return redirect(url_for('dashboard'))
 
+
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'),404
+    return render_template('404.html'), 404
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
