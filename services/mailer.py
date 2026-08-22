@@ -1,9 +1,8 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
+import resend
 
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD")
+resend.api_key = os.getenv("RESEND_API_KEY")
+FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL") 
 
 
 def send_verification_email(to_email, verify_link):
@@ -18,12 +17,10 @@ This link will expire in 10 minutes.
 
 If you didn't sign up for Not Movies, you can safely ignore this email.
 """
-    msg = MIMEText(body)
-    msg["Subject"] = subject
-    msg["From"] = EMAIL_ADDRESS
-    msg["To"] = to_email
-
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(EMAIL_ADDRESS, EMAIL_APP_PASSWORD)
-        server.send_message(msg)
+    params = {
+        "from": FROM_EMAIL,
+        "to": [to_email],
+        "subject": subject,
+        "text": body,
+    }
+    resend.Emails.send(params)
