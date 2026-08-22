@@ -17,7 +17,7 @@ from google import genai
 load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/static')
-app.secret_key = os.getenv('FLASK_SECRET_KEY')
+app.secret_key = os.getenv('Flask_Secret_Key')
 
 gemini_client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
