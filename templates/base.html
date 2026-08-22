@@ -116,9 +116,69 @@
     </div>
 
     <!--Footer-->
-    <div class="footer text-center px-3 py-4">
-      <h1 class="fs-3 fw-bold">Not Movies</h1>
-      <p class="fs-6 mb-0">Disclaimer</p>
+    <!--Footer-->
+    <footer class="site-footer pt-5 pb-4 mt-5">
+      <div class="container">
+        <div class="row gy-4">
+
+          <div class="col-12 col-md-4">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="fw-bold">NM</span>
+              <span class="fs-5 fw-bold">Not Movies</span>
+            </div>
+            <p class="text-muted small">
+              Browse, discover, and keep track of what you've watched —
+              powered by MovieLens data and TMDB.
+            </p>
+          </div>
+
+          <div class="col-6 col-md-2">
+            <h6 class="fw-semibold mb-3">Explore</h6>
+            <ul class="list-unstyled footer-links">
+              <li><a href="{{ url_for('landing') }}">Home</a></li>
+              <li><a href="{{ url_for('browse') }}">Browse</a></li>
+              <li><a href="{{ url_for('lucky') }}">Feeling Lucky?</a></li>
+            </ul>
+          </div>
+
+          <div class="col-6 col-md-2">
+            <h6 class="fw-semibold mb-3">Account</h6>
+            <ul class="list-unstyled footer-links">
+              {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+              {% else %}
+                <li><a href="{{ url_for('signup') }}">Log In</a></li>
+                <li><a href="{{ url_for('register') }}">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <div class="col-6 col-md-2">
+            <h6 class="fw-semibold mb-3">Legal</h6>
+            <ul class="list-unstyled footer-links">
+              <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-6 col-md-2">
+            <h6 class="fw-semibold mb-3">Data</h6>
+            <p class="text-muted small mb-0">
+              Movie data via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.
+              Ratings via <a href="https://grouplens.org/datasets/movielens/" target="_blank" rel="noopener">MovieLens</a>.
+            </p>
+          </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted">
+          <span>&copy; {{ current_year }} Not Movies. All rights reserved.</span>
+          <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+        </div>
+      </div>
+    </footer>
 
       <!-- Floating Chatbot -->
 <div id="chatWidget" class="chat-widget">

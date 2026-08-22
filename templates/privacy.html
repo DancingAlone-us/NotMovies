@@ -1,8 +1,72 @@
-{% extend 'base.html' %}
+{% extends "base.html" %}
+
 {% block head %}
-<title>Privacy Policy - NotMovies</title>
+  <title>Privacy Policy — Not Movies</title>
 {% endblock %}
 
 {% block main %}
-<h1>Privacy Policies ig</h1>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+      <h1 class="fw-bold mb-2">Privacy Policy</h1>
+      <p class="text-muted mb-5">Last updated: {{ current_year }}</p>
+
+      <h5 class="fw-semibold mt-4">What we collect</h5>
+      <p>
+        When you create an account, we store your username, email address, and a
+        securely hashed version of your password — we never store your password
+        in plain text. If you mark movies as watched, we store which movies
+        (title, poster, and genres) and when.
+      </p>
+
+      <h5 class="fw-semibold mt-4">How we use it</h5>
+      <p>
+        Your email is used only to send an account verification link when you
+        register, and for password-related account actions. Your watched
+        history powers your personal dashboard, including your total watched
+        count and genre breakdown. We do not sell or share your personal
+        information with third parties for advertising purposes.
+      </p>
+
+      <h5 class="fw-semibold mt-4">Third-party services</h5>
+      <p>
+        Not Movies uses <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>
+        for movie posters, synopses, cast information, and trailers. Movie
+        rating data is sourced from the
+        <a href="https://grouplens.org/datasets/movielens/" target="_blank" rel="noopener">MovieLens</a>
+        research dataset. Verification emails are sent through a third-party
+        transactional email provider. None of these services receive your
+        password.
+      </p>
+
+      <h5 class="fw-semibold mt-4">Cookies and sessions</h5>
+      <p>
+        We use a session cookie to keep you logged in after you sign in. This
+        cookie is required for account features (dashboard, watched tracking)
+        to work, and is not used for advertising or cross-site tracking.
+      </p>
+
+      <h5 class="fw-semibold mt-4">Your data, your control</h5>
+      <p>
+        You can remove any movie from your watched history at any time from
+        your dashboard. If you'd like your account and associated data deleted
+        entirely, contact us using the information below.
+      </p>
+
+      <h5 class="fw-semibold mt-4">Changes to this policy</h5>
+      <p>
+        This policy may be updated as Not Movies changes. Continued use of the
+        site after changes means you accept the updated policy.
+      </p>
+
+      <h5 class="fw-semibold mt-4">Contact</h5>
+      <p>
+        Questions about this policy or your data can be directed to the site
+        administrator.
+      </p>
+
+    </div>
+  </div>
+</div>
 {% endblock %}

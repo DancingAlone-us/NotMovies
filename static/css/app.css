@@ -385,3 +385,33 @@ body{
   border-color: #495057;
   color: #eee;
 }
+
+.site-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #eee;
+}
+
+.footer-links a {
+  color: #555;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.footer-links a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+[data-bs-theme="dark"] .site-footer {
+  background-color: #121212;
+  border-top-color: #333;
+}
+
+[data-bs-theme="dark"] .footer-links a {
+  color: #bbb;
+}
+
+[data-bs-theme="dark"] .footer-links a:hover {
+  color: #fff;
+}
