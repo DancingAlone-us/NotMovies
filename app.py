@@ -530,6 +530,10 @@ def remove_watched():
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.route('/health')
+def health():
+    return "OK", 200
+
 
 if __name__ == "__main__":
     app.run(debug=False)
