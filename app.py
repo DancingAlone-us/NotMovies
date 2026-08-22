@@ -1,6 +1,6 @@
 import os
 import secrets
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from dotenv import load_dotenv
 from services.tmdb import get_movie_detail, get_now_playing, get_random_tmdb_movie, search_tmdb
 import psycopg2
@@ -533,6 +533,10 @@ def page_not_found(e):
 @app.route('/health')
 def health():
     return "OK", 200
+
+@app.route('/robots.txt')
+def robots_txt():
+    return send_from_directory(app.static_folder, 'robots.txt')
 
 
 if __name__ == "__main__":
